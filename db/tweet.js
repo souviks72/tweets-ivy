@@ -14,6 +14,9 @@ const tweetSchema = new mongoose.Schema({
         required: true,
         trim: true,
         maxlength: 250
+    },
+    image:{
+        type: String
     }
 });
 

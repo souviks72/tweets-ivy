@@ -1,10 +1,47 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+
+const aws = require('aws-sdk');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+
 const Tweet = require('./db/tweet');
 const Hashtag = require('./db/hastags');
 
 const db = require('./db/index');
+
+aws.config.update({
+    secretAccessKey: '',
+    accessKeyId: '',
+    region: ''
+});
+
+const s3 = new aws.S3();
+
+const fileFilter = (req, file, cb) => {
+if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    cb(null, true);
+} else {
+    cb(new Error('Invalid file type, only JPEG and PNG is allowed!'), false);
+}
+}
+
+const upload = multer({
+    fileFilter,
+    storage: multerS3({
+        acl: 'public-read',
+        s3,
+        bucket: 'bucket-name',
+        metadata: function (req, file, cb) {
+            cb(null, {fieldName: 'TESTING_METADATA'});
+        },
+        key: function (req, file, cb) {
+            cb(null, Date.now().toString());
+        }
+        
+    })
+});
 
 app.use(bodyParser.json());
 
@@ -14,6 +51,12 @@ app.post('/tweet', async (req,res)=>{
         body: req.body.body
     });
     try{
+        
+        if(req.body.img){
+            const up = await upload.single('req.body.img');
+            newTweet.image = up;
+        }
+         
         await newTweet.save();
         let tags = req.body.caption.match(/#[a-z0-9_]+/g);
         if(tags.length>0){
