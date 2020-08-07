@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Hashtag = require('./hastags');
 
 const tweetSchema = new mongoose.Schema({
     caption: {

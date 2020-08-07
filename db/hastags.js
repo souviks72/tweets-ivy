@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Tweet = require('./tweet');
 
 const hashtagSchema = new mongoose.Schema({
     tag:{
@@ -7,12 +8,10 @@ const hashtagSchema = new mongoose.Schema({
         trim: true,
         minlength: 1
     },
-    tweets:[
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Tweet"
-        }
-    ]
+    tweets: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tweet'
+    }]
 });
 
 const Hashtag = mongoose.model('Hashtag',hashtagSchema);
